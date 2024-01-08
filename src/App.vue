@@ -123,7 +123,15 @@
           </div>
         </div>
       </div>
+      <p
+        v-if="alert.bool"
+        class="bg-red-700 text-white rounded text-center p-2 my-2"
+      >
+        {{ alert.message }}
+      </p>
+      <!--buttons-->
       <div class="text-center">
+        <!--help-->
         <button
           v-show="helpsNumber != 0"
           class="bg-pink-700 hover:bg-blue-500 rounded p-2 text-white"
@@ -131,6 +139,7 @@
         >
           Help
         </button>
+        <!--switch-->
         <button
           v-show="couples.length != rightAnswers() && counter != 0"
           class="bg-blue-700 hover:bg-blue-500 mx-2 rounded p-2 text-white"
@@ -138,6 +147,7 @@
         >
           Switch
         </button>
+        <!--reset-->
         <button
           class="bg-green-700 hover:bg-green-500 rounded p-2 text-white"
           @click="reset"
@@ -188,8 +198,21 @@ const selected2 = ref(null);
 const counter = ref(15);
 const level = ref("easy");
 const helpsNumber = ref(1);
+const alert = ref({
+  bool: false,
+  message: "",
+});
+const lanceAlert = (message) => {
+  alert.value.bool = true;
+  alert.value.message = message;
+  setTimeout(() => {
+    alert.value.bool = false;
+    alert.value.message = "";
+  }, 3000);
+};
 const help = () => {
-  if (helpsNumber.value === 0) {
+  if (helpsNumber.value === 0 || selected1.value === null) {
+    lanceAlert("Select an item to get help !");
     return;
   }
   const couple = couples.value.find((couple) => couple._id === selected1.value);
@@ -268,7 +291,6 @@ const reset = () => {
   //reset couples
   couples.value = [];
   for (let i = 0; i < colors.length; i++) {
-    console.log("current:" + shufflColors1[i], "expected:" + shufflColors2[i]);
     couples.value.push({
       _id: i,
       current: shufflColors1[i],
