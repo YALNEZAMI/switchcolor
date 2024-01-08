@@ -5,6 +5,22 @@
         Switch colors and win !
       </h1>
       <hr />
+      <div class="my-3">
+        <label for="">Level:</label>
+        <select
+          v-model="level"
+          :class="{
+            'rounded mx-2 text-white': true,
+            'bg-green-500': level === 'easy',
+            'bg-blue-500': level === 'midium',
+            'bg-red-500': level === 'hard',
+          }"
+        >
+          <option class="bg-green-500" value="easy">easy</option>
+          <option class="bg-blue-500" value="midium">midium</option>
+          <option class="bg-red-500" value="hard">hard</option>
+        </select>
+      </div>
       <h1
         v-show="counter != 0 && couples.length != rightAnswers()"
         class="my-2 text-center rounded p-2"
@@ -37,11 +53,9 @@
             backgroundColor: couple.current,
             opacity: 0.8,
             color: 'white',
-            width: '20%',
-            height: '20%',
           }"
           :class="{
-            'm-1 rounded shadow-lg p-2 flex flex-col cursor-pointer': true,
+            'm-1 rounded shadow-lg p-2 flex flex-col cursor-pointer vinghtpourcent md:centpx': true,
             'border-4 border-green-500':
               couple.current === couple.expected && false,
             'border-4 border-red-500':
@@ -119,23 +133,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-const colors = ["red", "green", "blue", "yellow", "purple", "orange"];
+import { ref, onMounted, watch } from "vue";
+const colorsEasy = ["red", "green", "blue", "yellow"];
+const colorsMidium = ["red", "green", "blue", "yellow", "purple", "orange"];
+const colorsHard = [
+  "red",
+  "green",
+  "blue",
+  "yellow",
+  "purple",
+  "orange",
+  "gray",
+  "pink",
+];
+
 const couples = ref([]);
 const selected1 = ref(null);
 const selected2 = ref(null);
 const counter = ref(15);
+const level = ref("easy");
+let colors = [];
+watch(level, () => {
+  reset();
+});
 onMounted(() => {
-  const shufflColors1 = colors.slice().sort(() => Math.random() - 0.5);
-  const shufflColors2 = colors.slice().sort(() => Math.random() - 0.5);
-  for (let i = 0; i < colors.length; i++) {
-    console.log("current:" + shufflColors1[i], "expected:" + shufflColors2[i]);
-    couples.value.push({
-      _id: i,
-      current: shufflColors1[i],
-      expected: shufflColors2[i],
-    });
-  }
+  reset();
 });
 const rightAnswers = () => {
   return couples.value.filter((couple) => couple.current === couple.expected)
@@ -179,15 +201,35 @@ const switchSelected = () => {
 };
 
 const reset = () => {
+  switch (level.value) {
+    case "easy":
+      colors = colorsEasy;
+      break;
+    case "midium":
+      colors = colorsMidium;
+      break;
+    case "hard":
+      colors = colorsHard;
+      break;
+
+    default:
+      break;
+  }
   const shufflColors1 = colors.slice().sort(() => Math.random() - 0.5);
   const shufflColors2 = colors.slice().sort(() => Math.random() - 0.5);
+  //reset couples
+  couples.value = [];
   for (let i = 0; i < colors.length; i++) {
-    couples.value[i].current = shufflColors1[i];
-    couples.value[i].expected = shufflColors2[i];
+    console.log("current:" + shufflColors1[i], "expected:" + shufflColors2[i]);
+    couples.value.push({
+      _id: i,
+      current: shufflColors1[i],
+      expected: shufflColors2[i],
+    });
   }
   selected1.value = null;
   selected2.value = null;
-  counter.value = 15;
+  counter.value = parseInt(1.5 * couples.value.length);
 };
 </script>
 
@@ -197,5 +239,13 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.vinghtpourcent {
+  width: 20%;
+  height: 20%;
+}
+.centpx {
+  width: 100px;
+  height: 100px;
 }
 </style>
