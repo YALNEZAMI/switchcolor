@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <div id="container" class="p-3 min-w-full">
     <div class="flex flex-col">
       <h1 class="text-center rounded bg-gray-700 text-white p-3 font-bold mb-3">
         Switch colors and win !
@@ -158,7 +158,7 @@
         </button>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup>
