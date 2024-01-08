@@ -42,7 +42,7 @@
         v-show="counter == 0 && couples.length != rightAnswers()"
         class="text-center rounded bg-orange-700 text-white p-3 font-bold"
       >
-        You lost this party, retry !
+        You lost this party 😔, retry !
       </h1>
 
       <div class="font-bold text-center my-3">
@@ -133,7 +133,9 @@
       <div class="text-center">
         <!--help-->
         <button
-          v-show="helpsNumber != 0"
+          v-show="
+            helpsNumber != 0 && counter != 0 && couples.length != rightAnswers()
+          "
           class="bg-pink-700 hover:bg-blue-500 rounded p-2 text-white"
           @click="help"
         >
@@ -300,6 +302,7 @@ const reset = () => {
   selected1.value = null;
   selected2.value = null;
   counter.value = parseInt(2 * couples.value.length);
+  helpsNumber.value = 1;
 };
 </script>
 
