@@ -10,15 +10,20 @@
         <select
           v-model="level"
           :class="{
-            'rounded mx-2 text-white': true,
+            'rounded mx-2 text-white p-1': true,
             'bg-green-500': level === 'easy',
             'bg-blue-500': level === 'midium',
             'bg-red-500': level === 'hard',
           }"
         >
-          <option class="bg-green-500" value="easy">easy</option>
-          <option class="bg-blue-500" value="midium">midium</option>
-          <option class="bg-red-500" value="hard">hard</option>
+          <option
+            v-for="level in levels"
+            :key="level.name"
+            :class="level.tailwindClass"
+            :value="level.name"
+          >
+            {{ level.name }}
+          </option>
         </select>
       </div>
       <h1
@@ -34,7 +39,7 @@
         You won 🥳 !
       </h1>
       <h1
-        v-show="counter == 0"
+        v-show="counter == 0 && couples.length != rightAnswers()"
         class="text-center rounded bg-orange-700 text-white p-3 font-bold"
       >
         You lost this party, retry !
@@ -44,7 +49,7 @@
         {{ rightAnswers() }}/{{ couples.length }} right colors !
       </div>
 
-      <div class="flex justify-between my-3">
+      <div class="flex flex-wrap justify-between my-3">
         <div
           @click="select(couple._id)"
           v-for="couple in couples"
@@ -62,13 +67,19 @@
               couple.current !== couple.expected && false,
           }"
         >
-          <!--waiting to be selected-->
+          <!--box-->
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="1.5"
             stroke="currentColor"
+            :class="{
+              'bg-white text-black rounded': true,
+            }"
+            :style="{
+              backgroundColor: counter == 0 ? couple.expected : 'white',
+            }"
           >
             <path
               stroke-linecap="round"
@@ -76,8 +87,8 @@
               d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
             />
           </svg>
-          <!-- selected-->
           <div class="flex justify-center">
+            <!-- selected-->
             <svg
               v-if="couple._id == selected1 || couple._id == selected2"
               xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +96,7 @@
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="w-6 h-6"
+              class="h-6 w-4 hover:text-red-500"
             >
               <path
                 stroke-linecap="round"
@@ -93,7 +104,7 @@
                 d="m4.5 12.75 6 6 9-13.5"
               />
             </svg>
-
+            <!-- waiting to be selected-->
             <svg
               v-else
               xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +112,7 @@
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="w-6 h-6"
+              class="h-6 w-4 hover:text-red-500"
             >
               <path
                 stroke-linecap="round"
@@ -114,14 +125,20 @@
       </div>
       <div class="text-center">
         <button
-          v-show="couples.length != rightAnswers() && counter != 0"
-          class="bg-blue-700 hover:bg-blue-500 rounded p-2 text-white"
-          @click="switchSelected"
+          v-show="helpsNumber != 0"
+          class="bg-pink-700 hover:bg-blue-500 rounded p-2 text-white"
+          @click="help"
         >
-          switch
+          Help
         </button>
         <button
-          v-show="couples.length == rightAnswers() || counter == 0"
+          v-show="couples.length != rightAnswers() && counter != 0"
+          class="bg-blue-700 hover:bg-blue-500 mx-2 rounded p-2 text-white"
+          @click="switchSelected"
+        >
+          Switch
+        </button>
+        <button
           class="bg-green-700 hover:bg-green-500 rounded p-2 text-white"
           @click="reset"
         >
@@ -134,25 +151,63 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-const colorsEasy = ["red", "green", "blue", "yellow"];
-const colorsMidium = ["red", "green", "blue", "yellow", "purple", "orange"];
-const colorsHard = [
-  "red",
-  "green",
-  "blue",
-  "yellow",
-  "purple",
-  "orange",
-  "gray",
-  "pink",
-];
+
+const levels = ref([
+  {
+    name: "easy",
+    tailwindClass: "bg-green-500",
+    colors: ["red", "green", "blue", "yellow"],
+  },
+  {
+    name: "midium",
+
+    tailwindClass: "bg-blue-500",
+
+    colors: ["red", "green", "blue", "yellow", "purple", "orange"],
+  },
+  {
+    name: "hard",
+    tailwindClass: "bg-red-500",
+
+    colors: [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "purple",
+      "orange",
+      "gray",
+      "pink",
+    ],
+  },
+]);
 
 const couples = ref([]);
 const selected1 = ref(null);
 const selected2 = ref(null);
 const counter = ref(15);
 const level = ref("easy");
-let colors = [];
+const helpsNumber = ref(1);
+const help = () => {
+  if (helpsNumber.value === 0) {
+    return;
+  }
+  const couple = couples.value.find((couple) => couple._id === selected1.value);
+  const oldCurrentColor = couple.current;
+
+  couple.current = couple.expected;
+  const newCurrentColor = couple.current;
+  const oldCouple = couples.value.find(
+    (couple) =>
+      couple.current === newCurrentColor && couple._id !== selected1.value
+  );
+  if (oldCouple) {
+    oldCouple.current = oldCurrentColor;
+  }
+
+  helpsNumber.value--;
+  selected1.value = null;
+};
 watch(level, () => {
   reset();
 });
@@ -182,39 +237,32 @@ const select = (id) => {
   }
 };
 const switchSelected = () => {
+  //tow couples must be selected
   if (selected1.value === null || selected2.value === null) {
     return;
   }
+  //finding couples
   const couple1 = couples.value.find(
     (couple) => couple._id === selected1.value
   );
   const couple2 = couples.value.find(
     (couple) => couple._id === selected2.value
   );
+  //switching
   const temp = couple1.current;
   couple1.current = couple2.current;
   couple2.current = temp;
   selected1.value = null;
-
   selected2.value = null;
   counter.value--;
 };
 
 const reset = () => {
-  switch (level.value) {
-    case "easy":
-      colors = colorsEasy;
-      break;
-    case "midium":
-      colors = colorsMidium;
-      break;
-    case "hard":
-      colors = colorsHard;
-      break;
-
-    default:
-      break;
-  }
+  let colors = [];
+  const levelColors = levels.value.find(
+    (levelIt) => levelIt.name === level.value
+  ).colors;
+  colors = levelColors;
   const shufflColors1 = colors.slice().sort(() => Math.random() - 0.5);
   const shufflColors2 = colors.slice().sort(() => Math.random() - 0.5);
   //reset couples
@@ -229,7 +277,7 @@ const reset = () => {
   }
   selected1.value = null;
   selected2.value = null;
-  counter.value = parseInt(1.5 * couples.value.length);
+  counter.value = parseInt(2 * couples.value.length);
 };
 </script>
 
