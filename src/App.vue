@@ -49,7 +49,7 @@
         {{ rightAnswers() }}/{{ couples.length }} right colors !
       </div>
 
-      <div class="flex flex-wrap justify-between my-3">
+      <div class="flex flex-wrap justify-between my-3 md:justify-center">
         <div
           @click="select(couple._id)"
           v-for="couple in couples"
@@ -59,13 +59,7 @@
             opacity: 0.8,
             color: 'white',
           }"
-          :class="{
-            'm-1 rounded shadow-lg p-2 flex flex-col cursor-pointer vinghtpourcent md:centpx': true,
-            'border-4 border-green-500':
-              couple.current === couple.expected && false,
-            'border-4 border-red-500':
-              couple.current !== couple.expected && false,
-          }"
+          class="m-1 shadow-lg p-2 flex flex-col rounded cursor-pointer w-1/5 md:w-32 md:mx-6"
         >
           <!--box-->
           <svg
@@ -123,6 +117,7 @@
           </div>
         </div>
       </div>
+      <!--alert-->
       <p
         v-if="alert.bool"
         class="bg-red-700 text-white rounded text-center p-2 my-2"
@@ -320,5 +315,6 @@ main {
 .centpx {
   width: 100px;
   height: 100px;
+  border-radius: 20%;
 }
 </style>
