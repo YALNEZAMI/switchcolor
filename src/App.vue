@@ -26,12 +26,7 @@
           </option>
         </select>
       </div>
-      <h1
-        v-show="counter != 0 && couples.length != rightAnswers()"
-        class="my-2 text-center rounded p-2"
-      >
-        {{ counter }} chances left !
-      </h1>
+
       <h1
         v-show="couples.length == rightAnswers()"
         class="text-center rounded bg-green-700 text-white p-3 font-bold"
@@ -117,6 +112,12 @@
           </div>
         </div>
       </div>
+      <h1
+        v-show="counter != 0 && couples.length != rightAnswers()"
+        class="my-2 text-center rounded p-2"
+      >
+        <ins>{{ counter }} chances left !</ins>
+      </h1>
       <!--alert-->
       <p
         v-if="alert.bool"
